@@ -3,6 +3,8 @@
 \usetheme[progressbar=frametitle]{metropolis}
 \renewcommand{\kanjifamilydefault}{\gtdefault}
 \usepackage{bm}
+\usepackage{tikz, pgfgantt}
+\usetikzlibrary{arrows.meta, positioning, decorations.pathreplacing, calc}
 
 \title{\textbf{自立生活支援のための音響イベント検出の連合学習}}
 \author{竹本志恩}
@@ -20,21 +22,85 @@
 \begin{frame}{テーマ概要}
     \begin{itemize}
         \item 少子高齢化により医療と介護の負担は増大
-        \item \textbf{AAL (Ambient Assisted Living)}: 情報技術で自立的な生活を支援し, 在宅介護の問題解決を目指す
-        \item \textbf{従来手法の課題}
+        \item \textbf{AAL (Ambient Assisted Living)}
         \begin{itemize}
-            \item 主にカメラを用いるが, 高価でプライバシー受容性に難がある
-            \item ウェアラブルは充電や装着し忘れ, 侵襲性の問題がある
+            \item 情報技術で自立的な生活を支援し, 在宅介護で問題解決を目指す
         \end{itemize}
-        \item \textbf{本研究のアプローチ: 音響イベント検出 (SED)}
+            \item \textbf{従来手法の課題}
         \begin{itemize}
-            \item 音による行動認識を行い, 異常検知や健康状態の把握を目指す
-            \item カメラより安価で, 音特有の行動の兆候を捉えられる
-            \item 機械学習で多様な環境や対象に柔軟に対応可能
+            \item 主にカメラを用いるが, 高価でプライバシー受容性に難点
+            \item ウェアラブルは充電や装着し忘れ, 侵襲性の問題
+        \end{itemize}
+        \item \textbf{音響イベント検出（Sound Event Detection, SED）で解決}
+        \begin{itemize}
+            \item 音による行動認識で, 異常検知や健康状態の把握を目指す
+            \item カメラより安価で, 音特有の異常兆候を検出
+            \item 機械学習で多様な環境や対象に柔軟に対応
             \item SEDで「いつ, どんな行動があったか」を理解し, 説明性のある異常検知モデル構築を目指す
         \end{itemize}
     \end{itemize}
 \end{frame}
+
+
+\begin{frame}{音響イベント検出とは}
+    \begin{itemize}
+        \item 与えられた音から，イベントを検出するタスク
+        \item イベントの開始と終了，ラベルを予測
+        \item 音響シーン分類との違い
+        \begin{itemize}
+            \item 音響シーン分類は一定時間の音のラベルのみ予測
+            \item SEDは音の発生時間や持続時間も考慮
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+
+
+\begin{frame}{図}
+% 音響シーン分類と音響イベント検出の違いを示す図
+\begin{center}
+    \begin{tikzpicture}[
+        scale=0.9, transform shape,
+        font=\sffamily\small, % フォント設定
+        % 各ブロックのスタイル定義
+        event/.style={rectangle, draw, thick, fill=cyan!30, minimum height=0.7cm, text centered, font=\sffamily\small},
+        scene/.style={rectangle, draw, thick, fill=orange!30, minimum height=0.7cm, text centered, font=\sffamily\small}
+    ]
+
+    % --- 音響シーン分類 ---
+    \node[anchor=west, font=\sffamily\bfseries] at (0, 2.5) {音響シーン分類 (Acoustic Scene Classification)};
+    % タイムラインの描画
+    \draw[-{Stealth}] (0, 1.5) -- (10.5, 1.5) node[right] {時間};
+    \foreach \x in {0,2,...,10} {
+        \draw (\x, 1.6) -- (\x, 1.4) node[below] {\x s};
+    }
+    % シーン全体のブロック
+    \draw[scene] (0, 0) rectangle (10, 0.7) node[pos=.5] {「公園」の音};
+    % 説明用の括弧
+    \draw[decorate, decoration={brace, amplitude=5pt, raise=2pt}] (0, -0.1) -- (10, -0.1) 
+        node[midway, below=8pt] {音声全体に単一のラベルを予測};
+
+    % --- 音響イベント検出 ---
+    \begin{scope}[yshift=-4cm]
+        \node[anchor=west, font=\sffamily\bfseries] at (0, 2.5) {音響イベント検出 (Acoustic Event Detection)};
+        % タイムラインの描画
+        \draw[-{Stealth}] (0, 1.5) -- (10.5, 1.5) node[right] {時間};
+        \foreach \x in {0,2,...,10} {
+            \draw (\x, 1.6) -- (\x, 1.4) node[below] {\x s};
+        }
+        % 各イベントのブロック
+        \draw[event] (1, 0) rectangle (3, 0.7) node[pos=.5] {犬の鳴き声};
+        \draw[event] (4, 0) rectangle (7, 0.7) node[pos=.5] {鳥のさえずり};
+        \draw[event] (7, 0) rectangle (9, 0.7) node[pos=.5] {足音};
+        % 説明用の括弧
+        \draw[decorate, decoration={brace, amplitude=5pt, raise=2pt}] (1, -0.1) -- (9, -0.1) 
+            node[midway, below=8pt] {個別のイベントとその時間を予測};
+    \end{scope}
+
+    \end{tikzpicture}
+\end{center}
+\end{frame}
+
+
 
 % Section 2: 課題と問い
 \section{研究課題}
@@ -42,18 +108,19 @@
     \begin{itemize}
         \item \textbf{総合的な課題: 連合学習によるプライバシー問題の解決}
         \begin{itemize}
-            \item AALはプライバシー性の高いデータを扱うため, 従来の中央集権的な機械学習はプライバシーの課題がある
+            \item AALはプライバシー性の高いデータを扱う
+            \item 従来の中央集権的な機械学習はプライバシーに課題
             \item 本研究では, この課題を\textbf{連合学習(Federated Learning, FL)}で解決
-            \item エッジデバイスでの解決策も存在するが, より柔軟なモデルに拡張できるFLに着目
+            \item エッジデバイスの先行研究もあるが, より柔軟なFLに着目
         \end{itemize}
         \item \textbf{本研究における問い}
         \begin{enumerate}
             \item 中央集権的手法と比較し, 連合学習でどれだけ精度を維持できるか？
             \item どの連合学習アルゴリズムが家庭内環境に対して適切か？
         \end{enumerate}
-        \item \textbf{今後の展望}
+        \item \textbf{展望}
         \begin{itemize}
-            \item SEDを手がかりに異常検知の\textbf{説明性向上}を図る
+            \item SEDを手がかりに異常検知
         \end{itemize}
     \end{itemize}
 \end{frame}
@@ -62,39 +129,47 @@
 \section{実験計画}
 \begin{frame}{実験評価計画 (1/2)}
     \begin{itemize}
-        \item \textbf{音響イベント検出モデルの検討 (8月)}
+        \item 7月
         \begin{itemize}
-            \item ベースライン: \textbf{DCASE 2024}のベースラインを使用
-            \item データセット: \textbf{DCASE 2024}のデータを使用
-            \item 課題: 適切なモデルアーキテクチャの比較・検討
+            \alert{\item 各評価指標の意味を理解}
+            \alert{\item 具体的な目標精度を決定}
+            \item 研究計画書を作成
         \end{itemize}
-        \item \textbf{モデルの学習・比較 (8-9月)}
+        \item 8月
         \begin{itemize}
-            \item \textbf{半教師あり学習}の手法を検討 (\textbf{Mean-Teacher}か\textbf{FixMatch}を想定)
-            \item 課題: 適切な学習戦略を決定する
-        \end{itemize}
-        \item \textbf{精度への影響調査 (9月)}
-        \begin{itemize}
-            \item \textbf{アブレーションスタディ}を実行 (前処理, 後処理, モデル構成要素)
+            \item 適切なモデルアーキテクチャの比較・検討
+            \begin{itemize}
+                \item 事前学習済みモデルの比較
+                \item 適切なCNN，RNNの構成を模索
+                \item 事前学習済みモデル+CNN+RNNの構成を模索
+            \end{itemize}
+            \item 適切な学習戦略を決定
+            \begin{itemize}
+                \item 前処理/後処理の方法，アンサンブルの有無など
+                \item 特に半教師あり学習の手法を検討 (\textbf{Mean-Teacher}か\textbf{FixMatch}を想定)
+            \end{itemize}
         \end{itemize}
     \end{itemize}
 \end{frame}
 
 \begin{frame}{実験評価計画 (2/2)}
     \begin{itemize}
-        \item \textbf{連合学習の集約法を検討 (9-10月)}
+        \item 9月
         \begin{itemize}
-            \item ベースライン: \textbf{FedAVG}
-            \item 比較対象: \textbf{FedProx}, \textbf{SCAFFOLD}などを予定
+            \item 前処理, 後処理, モデル構成要素の精度への影響を調査
         \end{itemize}
-        \item \textbf{実験・考察}
+        \item 9-10月
         \begin{itemize}
-            \item 適宜行う
+            \item 連合学習モデルの精度を従来手法と比較
+            \begin{itemize}
+                \item ベースライン: FedAVG
+                \item 比較対象: FedProx, SCAFFOLDなどを予定
+                \item 連合学習のハイパーパラメータを調整
+            \end{itemize}
         \end{itemize}
-        \item \textbf{必要なリソース}
+        \item 11月
         \begin{itemize}
-            \item 特段ない
-            \item 実機は使用せず, シミュレーションで実験を行う (余力があれば実機も検討)
+            \item 考察
         \end{itemize}
     \end{itemize}
 \end{frame}
@@ -103,7 +178,13 @@
 \section{評価方法}
 \begin{frame}{評価方法}
     \begin{itemize}
-        \item \textbf{比較対象}
+        \item モデル共通の前提
+        \begin{itemize}
+            \item 基本モデル: DCASE 2024のベースライン
+            \item データセット: DESED，MAESTRO
+        \end{itemize}
+
+        \item \textbf{モデルの比較対象}
         \begin{itemize}
             \item ベースラインやSOTA(State-of-the-Art)と比較
         \end{itemize}
@@ -111,18 +192,49 @@
         \begin{itemize}
             \item DCASE 2024のSupplementary metricsを参照
             \item 各種\textbf{F1スコア}+\textbf{PSDS (Polyphonic Sound Detection Score)} 1, 2を使用
-            \item 課題: 各評価指標の意味を理解
         \end{itemize}
         \item \textbf{精度の基準}
         \begin{itemize}
             \item 連合学習を適用した場合の精度を中央集権的な手法と比較
-            \item \textbf{従来手法と比べて遜色ない精度}が出せることを目標とする
-            \item 課題: 具体的な目標精度を決定
+            \item 従来手法から少し劣る精度が目標
         \end{itemize}
     \end{itemize}
 \end{frame}
 
-% 必要な先行研究を抽出して載せる + bibtexで[1]とか参照
+% \begin{frame}{図}
+% \begin{ganttchart}[
+%     vgrid,
+%     hgrid,
+%     bar/.append style={fill=cyan!80},
+%     % 'incomplete'スタイルが 'bar' のスタイルに追記されるように定義
+%     incomplete/.style={bar/.append style={fill=orange!80}},
+%     title label font=\bfseries
+%   ]{1}{5} % チャートの期間（5ヶ月）
+  
+%   % ヘッダー
+%   \gantttitle{実験計画}{4} \\
+%   \gantttitle{7}{1}
+%   \gantttitle{8}{1}
+%   \gantttitle{9}{1}
+%   \gantttitle{10}{1}\\
 
+%   % タスクリスト
+%   % 'incomplete'スタイルを直接指定
+%   \ganttbar[incomplete]{評価指標の理解・目標精度決定}{1}{1} \\
+%   \ganttbar{研究計画書の作成}{1}{1} \\
+%   \ganttbar{モデル/学習戦略の検討}{2}{2} \\
+%   \ganttbar{精度への影響調査}{3}{3} \\
+%   \ganttbar{連合学習モデルの精度比較}{3}{4}
+
+% \end{ganttchart}
+% \end{frame}
+
+
+% Section 5: 先行研究
+\section{引用}
+\begin{frame}{引用}
+% 必要な先行研究を抽出して載せる + bibtexで[1]とか参照
+% https://scrapbox.io/main-custard/%E5%8D%92%E8%AB%96%E3%81%AE%E4%B8%BB%E8%A6%81%E3%81%AA%E5%85%88%E8%A1%8C%E7%A0%94%E7%A9%B6をかく
+\end{frame}
 
 \end{document}
