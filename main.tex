@@ -1,22 +1,128 @@
-\documentclass{classes/report}
+\documentclass[unicode,12pt,aspectratio=169,dvipdfmx]{beamer}
+\usepackage{bxdpx-beamer}
+\usetheme[progressbar=frametitle]{metropolis}
+\renewcommand{\kanjifamilydefault}{\gtdefault}
+\usepackage{bm}
+
+\title{\textbf{自立生活支援のための音響イベント検出の連合学習}}
+\author{竹本志恩}
+\date{\today}
 
 \begin{document}
 
-\pagenumbering{roman}
-\subfile{sections/title}
-\newpage
+% Slide 1: Title
+\begin{frame}
+  \titlepage
+\end{frame}
 
-\tableofcontents
-\clearpage
+% Section 1: 研究テーマ
+\section{研究テーマ}
+\begin{frame}{テーマ概要}
+    \begin{itemize}
+        \item 少子高齢化により医療と介護の負担は増大
+        \item \textbf{AAL (Ambient Assisted Living)}: 情報技術で自立的な生活を支援し, 在宅介護の問題解決を目指す
+        \item \textbf{従来手法の課題}
+        \begin{itemize}
+            \item 主にカメラを用いるが, 高価でプライバシー受容性に難がある
+            \item ウェアラブルは充電や装着し忘れ, 侵襲性の問題がある
+        \end{itemize}
+        \item \textbf{本研究のアプローチ: 音響イベント検出 (SED)}
+        \begin{itemize}
+            \item 音による行動認識を行い, 異常検知や健康状態の把握を目指す
+            \item カメラより安価で, 音特有の行動の兆候を捉えられる
+            \item 機械学習で多様な環境や対象に柔軟に対応可能
+            \item SEDで「いつ, どんな行動があったか」を理解し, 説明性のある異常検知モデル構築を目指す
+        \end{itemize}
+    \end{itemize}
+\end{frame}
 
-\pagenumbering{arabic}
+% Section 2: 課題と問い
+\section{研究課題}
+\begin{frame}{テーマで取り組む課題}
+    \begin{itemize}
+        \item \textbf{総合的な課題: 連合学習によるプライバシー問題の解決}
+        \begin{itemize}
+            \item AALはプライバシー性の高いデータを扱うため, 従来の中央集権的な機械学習はプライバシーの課題がある
+            \item 本研究では, この課題を\textbf{連合学習(Federated Learning, FL)}で解決
+            \item エッジデバイスでの解決策も存在するが, より柔軟なモデルに拡張できるFLに着目
+        \end{itemize}
+        \item \textbf{本研究における問い}
+        \begin{enumerate}
+            \item 中央集権的手法と比較し, 連合学習でどれだけ精度を維持できるか？
+            \item どの連合学習アルゴリズムが家庭内環境に対して適切か？
+        \end{enumerate}
+        \item \textbf{今後の展望}
+        \begin{itemize}
+            \item SEDを手がかりに異常検知の\textbf{説明性向上}を図る
+        \end{itemize}
+    \end{itemize}
+\end{frame}
 
-\subfile{sections/abstract}
-\newpage
+% Section 3: 実験計画
+\section{実験計画}
+\begin{frame}{実験評価計画 (1/2)}
+    \begin{itemize}
+        \item \textbf{音響イベント検出モデルの検討 (8月)}
+        \begin{itemize}
+            \item ベースライン: \textbf{DCASE 2024}のベースラインを使用
+            \item データセット: \textbf{DCASE 2024}のデータを使用
+            \item 課題: 適切なモデルアーキテクチャの比較・検討
+        \end{itemize}
+        \item \textbf{モデルの学習・比較 (8-9月)}
+        \begin{itemize}
+            \item \textbf{半教師あり学習}の手法を検討 (\textbf{Mean-Teacher}か\textbf{FixMatch}を想定)
+            \item 課題: 適切な学習戦略を決定する
+        \end{itemize}
+        \item \textbf{精度への影響調査 (9月)}
+        \begin{itemize}
+            \item \textbf{アブレーションスタディ}を実行 (前処理, 後処理, モデル構成要素)
+        \end{itemize}
+    \end{itemize}
+\end{frame}
 
-\subfile{sections/main_issue}
-\newpage
+\begin{frame}{実験評価計画 (2/2)}
+    \begin{itemize}
+        \item \textbf{連合学習の集約法を検討 (9-10月)}
+        \begin{itemize}
+            \item ベースライン: \textbf{FedAVG}
+            \item 比較対象: \textbf{FedProx}, \textbf{SCAFFOLD}などを予定
+        \end{itemize}
+        \item \textbf{実験・考察}
+        \begin{itemize}
+            \item 適宜行う
+        \end{itemize}
+        \item \textbf{必要なリソース}
+        \begin{itemize}
+            \item 特段ない
+            \item 実機は使用せず, シミュレーションで実験を行う (余力があれば実機も検討)
+        \end{itemize}
+    \end{itemize}
+\end{frame}
 
-\subfile{sections/references}
+% Section 4: 評価方法
+\section{評価方法}
+\begin{frame}{評価方法}
+    \begin{itemize}
+        \item \textbf{比較対象}
+        \begin{itemize}
+            \item ベースラインやSOTA(State-of-the-Art)と比較
+        \end{itemize}
+        \item \textbf{評価指標}
+        \begin{itemize}
+            \item DCASE 2024のSupplementary metricsを参照
+            \item 各種\textbf{F1スコア}+\textbf{PSDS (Polyphonic Sound Detection Score)} 1, 2を使用
+            \item 課題: 各評価指標の意味を理解
+        \end{itemize}
+        \item \textbf{精度の基準}
+        \begin{itemize}
+            \item 連合学習を適用した場合の精度を中央集権的な手法と比較
+            \item \textbf{従来手法と比べて遜色ない精度}が出せることを目標とする
+            \item 課題: 具体的な目標精度を決定
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+
+% 必要な先行研究を抽出して載せる + bibtexで[1]とか参照
+
 
 \end{document}
