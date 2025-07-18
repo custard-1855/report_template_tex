@@ -6,6 +6,23 @@
 \usepackage{tikz, pgfgantt}
 \usetikzlibrary{arrows.meta, positioning, decorations.pathreplacing, calc}
 
+\RequirePackage{tabularx} % 表の幅を指定するためのパッケージ
+% \RequirePackage[bibstyle=bibliography,sorting=none,date=year,isbn=false,doi,giveninits,urldate=iso,seconds]{biblatex} % biblatexを使用するためのパッケージ
+\usepackage[
+  backend=biber,     % 参考文献処理にBiberを使うことを明記（強く推奨）
+  style=numeric,       % 番号形式のスタイル [1], [2] ...
+  sorting=none,        % 引用順に並べる
+  date=year,
+  isbn=false,
+  doi=true,            % doiを表示する場合はtrue
+  giveninits,
+  urldate=iso,
+  seconds
+]{biblatex}
+\addbibresource{references.bib}
+
+
+
 \title{\textbf{自立生活支援のための音響イベント検出の連合学習}}
 \author{竹本志恩}
 \date{\today}
@@ -22,7 +39,7 @@
 \begin{frame}{テーマ概要}
     \begin{itemize}
         \item 少子高齢化により医療と介護の負担は増大
-        \item \textbf{AAL (Ambient Assisted Living)}
+        \item \textbf{AAL (Ambient Assisted Living)} \cite{blackman2016ambient,stodczyk2020ambient}
         \begin{itemize}
             \item 情報技術で自立的な生活を支援し, 在宅介護で問題解決を目指す
         \end{itemize}
@@ -51,6 +68,7 @@
             \item 音響シーン分類は一定時間の音のラベルのみ予測
             \item SEDは音の発生時間や持続時間も考慮
         \end{itemize}
+        \item AcousticとSoundの違いは未調査
     \end{itemize}
 \end{frame}
 
@@ -111,7 +129,7 @@
             \item AALはプライバシー性の高いデータを扱う
             \item 従来の中央集権的な機械学習はプライバシーに課題
             \item 本研究では, この課題を\textbf{連合学習(Federated Learning, FL)}で解決
-            \item エッジデバイスの先行研究もあるが, より柔軟なFLに着目
+            \item エッジデバイスの先行研究もある\cite{alsina2017homesound}が, より柔軟なFLに着目
         \end{itemize}
         \item \textbf{本研究における問い}
         \begin{enumerate}
@@ -131,22 +149,23 @@
     \begin{itemize}
         \item 7月
         \begin{itemize}
-            \alert{\item 各評価指標の意味を理解}
-            \alert{\item 具体的な目標精度を決定}
             \item 研究計画書を作成
+            \item 各評価指標の意味を理解
+            \item 具体的な目標精度を決定
         \end{itemize}
-        \item 8月
+        \item 7-8月
         \begin{itemize}
-            \item 適切なモデルアーキテクチャの比較・検討
+            \item 適切なモデルアーキテクチャの比較・検討 \cite{li2022hybrid,schmid2024multi}
             \begin{itemize}
                 \item 事前学習済みモデルの比較
                 \item 適切なCNN，RNNの構成を模索
                 \item 事前学習済みモデル+CNN+RNNの構成を模索
             \end{itemize}
             \item 適切な学習戦略を決定
-            \begin{itemize}
+            \begin{itemize}              
                 \item 前処理/後処理の方法，アンサンブルの有無など
                 \item 特に半教師あり学習の手法を検討 (\textbf{Mean-Teacher}か\textbf{FixMatch}を想定)
+                \item DCASE 2024を参照
             \end{itemize}
         \end{itemize}
     \end{itemize}
@@ -162,8 +181,8 @@
         \begin{itemize}
             \item 連合学習モデルの精度を従来手法と比較
             \begin{itemize}
-                \item ベースライン: FedAVG
-                \item 比較対象: FedProx, SCAFFOLDなどを予定
+                \item ベースライン: FedAVG \cite{mcmahan2017communication}
+                \item 比較対象: FedProx \cite{li2020federated}, SCAFFOLD \cite{karimireddy2020scaffold}などを予定
                 \item 連合学習のハイパーパラメータを調整
             \end{itemize}
         \end{itemize}
@@ -201,40 +220,33 @@
     \end{itemize}
 \end{frame}
 
-% \begin{frame}{図}
-% \begin{ganttchart}[
-%     vgrid,
-%     hgrid,
-%     bar/.append style={fill=cyan!80},
-%     % 'incomplete'スタイルが 'bar' のスタイルに追記されるように定義
-%     incomplete/.style={bar/.append style={fill=orange!80}},
-%     title label font=\bfseries
-%   ]{1}{5} % チャートの期間（5ヶ月）
-  
-%   % ヘッダー
-%   \gantttitle{実験計画}{4} \\
-%   \gantttitle{7}{1}
-%   \gantttitle{8}{1}
-%   \gantttitle{9}{1}
-%   \gantttitle{10}{1}\\
-
-%   % タスクリスト
-%   % 'incomplete'スタイルを直接指定
-%   \ganttbar[incomplete]{評価指標の理解・目標精度決定}{1}{1} \\
-%   \ganttbar{研究計画書の作成}{1}{1} \\
-%   \ganttbar{モデル/学習戦略の検討}{2}{2} \\
-%   \ganttbar{精度への影響調査}{3}{3} \\
-%   \ganttbar{連合学習モデルの精度比較}{3}{4}
-
-% \end{ganttchart}
-% \end{frame}
-
-
-% Section 5: 先行研究
-\section{引用}
-\begin{frame}{引用}
-% 必要な先行研究を抽出して載せる + bibtexで[1]とか参照
-% https://scrapbox.io/main-custard/%E5%8D%92%E8%AB%96%E3%81%AE%E4%B8%BB%E8%A6%81%E3%81%AA%E5%85%88%E8%A1%8C%E7%A0%94%E7%A9%B6をかく
+\section{進捗}
+\begin{frame}{進捗}
+    \begin{itemize}
+        \item $\checkmark$各種サーベイを実施
+        \begin{itemize}
+            \item 技術的な理解はこれから
+            \item 連合学習/音響イベント検出/半教師あり学習の調査
+            \item 自立生活支援の研究目的を理解
+            \item DCASE task4 2018-2024の大まかな内容を把握
+        \end{itemize}    
+        \item 実験評価計画タスク    
+        \begin{itemize}
+            \item 研究計画書: ほぼ完了
+            \item 各評価指標，目標精度: 指標は把握
+            \item モデルアーキテクチャ: 使用するモデルは概ね把握
+            \item 学習戦略を決定: 半教師あり学習手法は把握，全体は論文を参考に検討中
+            \item 精度影響の調査: 未着手
+            \item 連合学習: FedAVG，FedProxは追試済み，他は未調査
+        \end{itemize}    
+    \end{itemize}
 \end{frame}
 
+% Section 5: 先行研究
+\begin{frame}[allowframebreaks]
+% 必要な先行研究を抽出して載せる + bibtexで[1]とか参照
+% https://scrapbox.io/main-custard/%E5%8D%92%E8%AB%96%E3%81%AE%E4%B8%BB%E8%A6%81%E3%81%AA%E5%85%88%E8%A1%8C%E7%A0%94%E7%A9%B6をかく
+% \addcontentsline{toc}{chapter}{参考文献}
+\printbibliography
+\end{frame}
 \end{document}
