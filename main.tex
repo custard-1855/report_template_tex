@@ -1,252 +1,213 @@
-\documentclass[unicode,12pt,aspectratio=169,dvipdfmx]{beamer}
-\usepackage{bxdpx-beamer}
-\usetheme[progressbar=frametitle]{metropolis}
-\renewcommand{\kanjifamilydefault}{\gtdefault}
+\documentclass[dvipdfmx, twocolumn, 10pt]{bxjsarticle}
+% \documentclass[
+%   dvipdfmx,
+%   twocolumn,
+%   10pt,
+%   top=15mm, 
+%   bottom=25mm, 
+%   left=20mm, 
+%   right=20mm
+% ]{bxjsarticle}
+
+% --- パッケージ設定 ---
+\usepackage{geometry}
+% \geometry{top=15mm, bottom=25mm, left=20mm, right=20mm}
+\geometry{margin=20truemm}
 \usepackage{bm}
-\usepackage{tikz, pgfgantt}
+\usepackage{tikz}
 \usetikzlibrary{arrows.meta, positioning, decorations.pathreplacing, calc}
 
-\RequirePackage{tabularx} % 表の幅を指定するためのパッケージ
-% \RequirePackage[bibstyle=bibliography,sorting=none,date=year,isbn=false,doi,giveninits,urldate=iso,seconds]{biblatex} % biblatexを使用するためのパッケージ
+% --- 参考文献設定 (BibLaTeX) ---
 \usepackage[
-  backend=biber,     % 参考文献処理にBiberを使うことを明記（強く推奨）
-  style=numeric,       % 番号形式のスタイル [1], [2] ...
-  sorting=none,        % 引用順に並べる
+  backend=biber,
+  style=numeric,
+  sorting=none,
   date=year,
   isbn=false,
-  doi=true,            % doiを表示する場合はtrue
+  doi=true,
   giveninits,
   urldate=iso,
   seconds
 ]{biblatex}
 \addbibresource{references.bib}
 
-
-
+% --- 文書情報 ---
 \title{\textbf{自立生活支援のための音響イベント検出の連合学習}}
 \author{竹本志恩}
 \date{\today}
 
+
 \begin{document}
 
-% Slide 1: Title
-\begin{frame}
-  \titlepage
-\end{frame}
+\maketitle
 
-% Section 1: 研究テーマ
-\section{研究テーマ}
-\begin{frame}{テーマ概要}
-    \begin{itemize}
-        \item 少子高齢化により医療と介護の負担は増大
-        \item \textbf{AAL (Ambient Assisted Living)} \cite{blackman2016ambient,stodczyk2020ambient}
-        \begin{itemize}
-            \item 情報技術で自立的な生活を支援し, 在宅介護で問題解決を目指す
-        \end{itemize}
-            \item \textbf{従来手法の課題}
-        \begin{itemize}
-            \item 主にカメラを用いるが, 高価でプライバシー受容性に難点
-            \item ウェアラブルは充電や装着し忘れ, 侵襲性の問題
-        \end{itemize}
-        \item \textbf{音響イベント検出（Sound Event Detection, SED）で解決}
-        \begin{itemize}
-            \item 音による行動認識で, 異常検知や健康状態の把握を目指す
-            \item カメラより安価で, 音特有の異常兆候を検出
-            \item 機械学習で多様な環境や対象に柔軟に対応
-            \item SEDで「いつ, どんな行動があったか」を理解し, 説明性のある異常検知モデル構築を目指す
-        \end{itemize}
-    \end{itemize}
-\end{frame}
+% --- 要旨 ---
+\begin{abstract}
+少子高齢化に伴う医療・介護負担の増大に対し, 情報技術を用いて高齢者の自立生活を支援するAAL (Ambient Assisted Living) が注目されている. 従来のAALではカメラやウェアラブル端末が主に用いられるが, プライバシー侵害や装着負担といった課題があった. 本研究ではこれらの課題を解決するため, 安価かつプライバシー受容性の高い音響センサを用いた音響イベント検出 (Sound Event Detection, SED) に着目する. SEDにより生活音から利用者の行動を認識し, 異常検知や健康状態の把握を目指す. しかし, 機械学習モデルの学習にはプライバシー性の高い個人宅の音響データを要するため, データをサーバに集約する従来の中央集権的な手法は依然としてプライバシー上の懸念が残る. この課題に対し, 本研究ではデータを各家庭内に留めたまま分散的に学習を行う連合学習 (Federated Learning, FL) の適用を提案する. 本稿では, 自立生活支援という文脈において, SEDモデルを連合学習で構築する際の手法を検討し, 中央集権的手法に対する精度や, 最適なアルゴリズムについての問いを立て, その実験計画と評価方法を概説する.
+\end{abstract}
 
 
-\begin{frame}{音響イベント検出とは}
-    \begin{itemize}
-        \item 与えられた音から，イベントを検出するタスク
-        \item イベントの開始と終了，ラベルを予測
-        \item 音響シーン分類との違い
-        \begin{itemize}
-            \item 音響シーン分類は一定時間の音のラベルのみ予測
-            \item SEDは音の発生時間や持続時間も考慮
-        \end{itemize}
-        \item AcousticとSoundの違いは未調査
-    \end{itemize}
-\end{frame}
+% --- 緒言 ---
+\section{緒言}
 
+\subsection{背景: AALと音響イベント検出}
+少子高齢化の進行により, 日本の医療および介護の負担は増大の一途をたどっている. 
+この社会課題に対する一つの解決策として, Ambient Assisted Living (AAL) の研究が活発化している. 
+AALは, 情報通信技術を活用して高齢者などの自立した生活を支援し, 在宅介護における問題解決を目指すアプローチである\cite{blackman2016ambient,stodczyk2020ambient}.
 
-\begin{frame}{図}
-% 音響シーン分類と音響イベント検出の違いを示す図
-\begin{center}
-    \begin{tikzpicture}[
-        scale=0.9, transform shape,
-        font=\sffamily\small, % フォント設定
-        % 各ブロックのスタイル定義
-        event/.style={rectangle, draw, thick, fill=cyan!30, minimum height=0.7cm, text centered, font=\sffamily\small},
-        scene/.style={rectangle, draw, thick, fill=orange!30, minimum height=0.7cm, text centered, font=\sffamily\small}
-    ]
+従来, AALの実現にはカメラやウェアラブルデバイスが多く用いられてきた. 
+しかし, カメラは設置コストが高いだけでなく, 常に監視されることによるプライバシー受容性に大きな課題を抱えている. 
+また, ウェアラブルデバイスは充電の手間や装着し忘れ, 利用者への侵襲性（身体的・精神的負担）が問題となる.
 
+本研究ではこれらの課題を解決する手段として, \textbf{音響イベント検出 (Sound Event Detection, SED)} に着目する. 
+SEDは, マイクなどの安価なセンサから得られる音響データに基づき, どのような事象がいつ発生したかを把握する技術である．
+% 利用者の行動認識や異常検知, 健康状態の把握を目指す技術である. 
+カメラと比較してプライバシー侵害のリスクが低く, 音特有の異常兆候（咳, 叫び声, 転倒音など）を検出できる利点がある. 
+機械学習を用いることで, 多様な環境や対象者に柔軟に対応可能であり, 「いつ, どのような行動があったか」という情報を高い説明性をもって提供できるモデルの構築が期待される.
+
+\subsection{音響イベント検出 (SED) の概要}
+音響イベント検出 (SED) は, 与えられた音響信号から音響イベントを検出するタスクである. 
+具体的には, イベントのクラス（例: 「犬の鳴き声」）だけでなく, そのイベントがいつ始まり, いつ終わったかという時間情報も同時に予測する.
+
+これは, 類似タスクである\textbf{音響シーン分類 (Acoustic Scene Classification, ASC)} とは異なる. 
+ASCは, ある一定時間の音声クリップ全体に対して単一のラベル（例: 「公園」）を付与するのに対し, SEDは音声中に発生する複数のイベントの持続時間を考慮する点でより詳細な情報を扱う（図\ref{fig:sed_vs_asc}参照）.
+
+\begin{figure*}[t]
+\centering
+\begin{tikzpicture}[
+    scale=0.9, transform shape,
+    font=\sffamily\small,
+    event/.style={rectangle, draw, thick, fill=cyan!30, minimum height=0.7cm, text centered, font=\sffamily\small},
+    scene/.style={rectangle, draw, thick, fill=orange!30, minimum height=0.7cm, text centered, font=\sffamily\small}
+]
     % --- 音響シーン分類 ---
     \node[anchor=west, font=\sffamily\bfseries] at (0, 2.5) {音響シーン分類 (Acoustic Scene Classification)};
-    % タイムラインの描画
     \draw[-{Stealth}] (0, 1.5) -- (10.5, 1.5) node[right] {時間};
     \foreach \x in {0,2,...,10} {
         \draw (\x, 1.6) -- (\x, 1.4) node[below] {\x s};
     }
-    % シーン全体のブロック
     \draw[scene] (0, 0) rectangle (10, 0.7) node[pos=.5] {「公園」の音};
-    % 説明用の括弧
     \draw[decorate, decoration={brace, amplitude=5pt, raise=2pt}] (0, -0.1) -- (10, -0.1) 
         node[midway, below=8pt] {音声全体に単一のラベルを予測};
-
+        
     % --- 音響イベント検出 ---
     \begin{scope}[yshift=-4cm]
         \node[anchor=west, font=\sffamily\bfseries] at (0, 2.5) {音響イベント検出 (Acoustic Event Detection)};
-        % タイムラインの描画
         \draw[-{Stealth}] (0, 1.5) -- (10.5, 1.5) node[right] {時間};
         \foreach \x in {0,2,...,10} {
             \draw (\x, 1.6) -- (\x, 1.4) node[below] {\x s};
         }
-        % 各イベントのブロック
         \draw[event] (1, 0) rectangle (3, 0.7) node[pos=.5] {犬の鳴き声};
         \draw[event] (4, 0) rectangle (7, 0.7) node[pos=.5] {鳥のさえずり};
         \draw[event] (7, 0) rectangle (9, 0.7) node[pos=.5] {足音};
-        % 説明用の括弧
         \draw[decorate, decoration={brace, amplitude=5pt, raise=2pt}] (1, -0.1) -- (9, -0.1) 
             node[midway, below=8pt] {個別のイベントとその時間を予測};
     \end{scope}
+\end{tikzpicture}
+\caption{音響シーン分類と音響イベント検出の比較}
+\label{fig:sed_vs_asc}
+\end{figure*}
 
-    \end{tikzpicture}
-\end{center}
-\end{frame}
 
+% --- 研究課題 ---
+\section{研究課題と本研究の問い}
+AALにおけるSEDの活用は有望であるが, その実現にはプライバシーに関する課題が残る. 
+AALは個人の生活空間という極めてプライバシー性の高いデータを扱うため, 音響データであってもその取り扱いには細心の注意が必要となる. 
+従来の中央集権的な機械学習では, 各家庭から収集した音響データをサーバに集約してモデルを学習させる必要があり, プライバシー漏洩のリスクが懸念される.
 
+本研究では, このプライバシー問題を解決するため, \textbf{連合学習 (Federated Learning, FL)} の導入を提案する. 
+FLは, データをサーバに集約することなく, 各エッジデバイス（この場合は各家庭に設置された音響センサ）上でモデルを学習し, モデルの更新情報（重みパラメータなど）のみをサーバで集約・統合する分散学習手法である. 
+これにより, プライバシーの根幹である生データを各家庭の外に出すことなく, 高精度なモデルの構築が期待できる. 
+エッジデバイスでの処理に関する先行研究\cite{alsina2017homesound}も存在するが, 本研究ではより柔軟な学習が可能なFLに着目する.
 
-% Section 2: 課題と問い
-\section{研究課題}
-\begin{frame}{テーマで取り組む課題}
-    \begin{itemize}
-        \item \textbf{総合的な課題: 連合学習によるプライバシー問題の解決}
-        \begin{itemize}
-            \item AALはプライバシー性の高いデータを扱う
-            \item 従来の中央集権的な機械学習はプライバシーに課題
-            \item 本研究では, この課題を\textbf{連合学習(Federated Learning, FL)}で解決
-            \item エッジデバイスの先行研究もある\cite{alsina2017homesound}が, より柔軟なFLに着目
-        \end{itemize}
-        \item \textbf{本研究における問い}
-        \begin{enumerate}
-            \item 中央集権的手法と比較し, 連合学習でどれだけ精度を維持できるか？
-            \item どの連合学習アルゴリズムが家庭内環境に対して適切か？
-        \end{enumerate}
-        \item \textbf{展望}
-        \begin{itemize}
-            \item SEDを手がかりに異常検知
-        \end{itemize}
-    \end{itemize}
-\end{frame}
+以上の背景から, 本研究では以下の問いを立てる.
+\begin{enumerate}
+    \item 中央集権的な学習手法と比較して, 連合学習はSEDタスクにおいてどの程度の精度を維持できるか？
+    \item 複数の連合学習アルゴリズムのうち, 家庭内の音響データという不均一な（Non-IID）データ環境に対して, どのアルゴリズムが最も適切か？
+\end{enumerate}
+将来的には, この連合学習によって構築されたSEDモデルを手がかりとした異常検知システムの実現を展望する.
 
-% Section 3: 実験計画
+% --- 実験計画 ---
 \section{実験計画}
-\begin{frame}{実験評価計画 (1/2)}
-    \begin{itemize}
-        \item 7月
-        \begin{itemize}
-            \item 研究計画書を作成
-            \item 各評価指標の意味を理解
-            \item 具体的な目標精度を決定
-        \end{itemize}
-        \item 7-8月
-        \begin{itemize}
-            \item 適切なモデルアーキテクチャの比較・検討 \cite{li2022hybrid,schmid2024multi}
-            \begin{itemize}
-                \item 事前学習済みモデルの比較
-                \item 適切なCNN，RNNの構成を模索
-                \item 事前学習済みモデル+CNN+RNNの構成を模索
-            \end{itemize}
-            \item 適切な学習戦略を決定
-            \begin{itemize}              
-                \item 前処理/後処理の方法，アンサンブルの有無など
-                \item 特に半教師あり学習の手法を検討 (\textbf{Mean-Teacher}か\textbf{FixMatch}を想定)
-                \item DCASE 2024を参照
-            \end{itemize}
-        \end{itemize}
-    \end{itemize}
-\end{frame}
+本研究の問いに答えるため, 以下の計画で実験を進める.
 
-\begin{frame}{実験評価計画 (2/2)}
+\begin{itemize}
+    \item \textbf{7月: 準備期間}
     \begin{itemize}
-        \item 9月
-        \begin{itemize}
-            \item 前処理, 後処理, モデル構成要素の精度への影響を調査
-        \end{itemize}
-        \item 9-10月
-        \begin{itemize}
-            \item 連合学習モデルの精度を従来手法と比較
-            \begin{itemize}
-                \item ベースライン: FedAVG \cite{mcmahan2017communication}
-                \item 比較対象: FedProx \cite{li2020federated}, SCAFFOLD \cite{karimireddy2020scaffold}などを予定
-                \item 連合学習のハイパーパラメータを調整
-            \end{itemize}
-        \end{itemize}
-        \item 11月
-        \begin{itemize}
-            \item 考察
-        \end{itemize}
+        \item 評価指標（F1スコア, PSDSなど）の意味を詳細に理解.
+        \item 具体的な目標精度を設定.
     \end{itemize}
-\end{frame}
+    
+    \item \textbf{7-8月: モデルアーキテクチャと学習戦略の検討}
+    \begin{itemize}
+        \item 適切なモデルアーキテクチャの比較・検討 \cite{li2022hybrid,schmid2024multi} を行う. 事前学習済みモデル, CNN, RNNの最適な構成を模索する.
+        \item 適切な学習戦略を決定する. データの前処理・後処理, アンサンブル学習の有無などを検討し, 特に半教師あり学習の手法としてMean-TeacherまたはFixMatchの導入を検討する (DCASE 2024を参考).
+    \end{itemize}
+    
+    \item \textbf{9月: ベースラインモデルの性能評価}
+    \begin{itemize}
+        \item データの前処理, 後処理, およびモデルの各構成要素が精度に与える影響を詳細に調査する.
+    \end{itemize}
 
-% Section 4: 評価方法
+    \item \textbf{9-10月: 連合学習モデルの実装と比較評価}
+    \begin{itemize}
+        \item 複数の連合学習アルゴリズムを実装し, その精度を中央集権的手法と比較する. ベースラインとしてFedAVG \cite{mcmahan2017communication} を用い, 比較対象としてFedProx \cite{li2020federated} や SCAFFOLD \cite{karimireddy2020scaffold} などを実装し評価する.
+        \item 各FLアルゴリズムのハイパーパラメータ調整を行う.
+    \end{itemize}
+    
+    \item \textbf{11月: 考察と論文執筆}
+    \begin{itemize}
+        \item 実験結果を分析・考察し, 論文としてまとめる.
+    \end{itemize}
+\end{itemize}
+
+% --- 評価方法 ---
 \section{評価方法}
-\begin{frame}{評価方法}
+実験における評価は以下の枠組みで行う.
+
+\begin{itemize}
+    \item \textbf{モデル共通の前提}
     \begin{itemize}
-        \item モデル共通の前提
-        \begin{itemize}
-            \item 基本モデル: DCASE 2024のベースライン
-            \item データセット: DESED，MAESTRO
-        \end{itemize}
-
-        \item \textbf{モデルの比較対象}
-        \begin{itemize}
-            \item ベースラインやSOTA(State-of-the-Art)と比較
-        \end{itemize}
-        \item \textbf{評価指標}
-        \begin{itemize}
-            \item DCASE 2024のSupplementary metricsを参照
-            \item 各種\textbf{F1スコア}+\textbf{PSDS (Polyphonic Sound Detection Score)} 1, 2を使用
-        \end{itemize}
-        \item \textbf{精度の基準}
-        \begin{itemize}
-            \item 連合学習を適用した場合の精度を中央集権的な手法と比較
-            \item 従来手法から少し劣る精度が目標
-        \end{itemize}
+        \item \textbf{基本モデル}: DCASE 2024のベースラインモデルを基礎とする.
+        \item \textbf{データセット}: DESED, MAESTROなどの公開データセットを使用する.
     \end{itemize}
-\end{frame}
-
-\section{進捗}
-\begin{frame}{進捗}
+    
+    \item \textbf{モデルの比較対象}
     \begin{itemize}
-        \item $\checkmark$各種サーベイを実施
-        \begin{itemize}
-            \item 技術的な理解はこれから
-            \item 連合学習/音響イベント検出/半教師あり学習の調査
-            \item 自立生活支援の研究目的を理解
-            \item DCASE task4 2018-2024の大まかな内容を把握
-        \end{itemize}    
-        \item 実験評価計画タスク    
-        \begin{itemize}
-            \item 研究計画書: ほぼ完了
-            \item 各評価指標，目標精度: 指標は把握
-            \item モデルアーキテクチャ: 使用するモデルは概ね把握
-            \item 学習戦略を決定: 半教師あり学習手法は把握，全体は論文を参考に検討中
-            \item 精度影響の調査: 未着手
-            \item 連合学習: FedAVG，FedProxは追試済み，他は未調査
-        \end{itemize}    
+        \item 中央集権的に学習させたベースラインモデルや, 関連研究におけるSOTA (State-of-the-Art) モデルを比較対象とする.
     \end{itemize}
-\end{frame}
+    
+    \item \textbf{評価指標}
+    \begin{itemize}
+        \item DCASE 2024で用いられるSupplementary metricsを参照し, イベントベースの各種\textbf{F1スコア}と, \textbf{PSDS (Polyphonic Sound Detection Score)} 1および2を主たる評価指標として使用する.
+    \end{itemize}
 
-% Section 5: 先行研究
-\begin{frame}[allowframebreaks]
-% 必要な先行研究を抽出して載せる + bibtexで[1]とか参照
-% https://scrapbox.io/main-custard/%E5%8D%92%E8%AB%96%E3%81%AE%E4%B8%BB%E8%A6%81%E3%81%AA%E5%85%88%E8%A1%8C%E7%A0%94%E7%A9%B6をかく
-% \addcontentsline{toc}{chapter}{参考文献}
+    \item \textbf{精度の基準}
+    \begin{itemize}
+        \item 連合学習を適用した際の精度を, 中央集権的な手法で学習させた場合の精度と比較する. 理想的には同等の精度を目指すが, プライバシー保護という利点を考慮し, 従来手法からわずかに劣る程度の精度を目標とする.
+    \end{itemize}
+\end{itemize}
+
+
+% --- 進捗 ---
+\section{現在の進捗}
+本稿執筆時点での進捗は以下の通りである.
+
+\begin{itemize}
+    \item \textbf{各種サーベイの実施}: 連合学習, 音響イベント検出, 半教師あり学習に関する技術調査, および自立生活支援という研究目的の理解を進めた. また, DCASE Task4 (2018-2024) の大まかな内容を把握した.
+    \item \textbf{実験評価計画タスクの進捗}
+    \begin{itemize}
+        \item 研究計画書: ほぼ完了.
+        \item 各評価指標, 目標精度: 指標は把握済み.
+        \item モデルアーキテクチャ: 使用するモデルは概ね把握済み.
+        \item 学習戦略: 半教師あり学習手法は把握済み. 全体の戦略は関連論文を参考に検討中.
+        \item 精度影響の調査: 未着手.
+        \item 連合学習: FedAVGとFedProxは追試済み. 他のアルゴリズムは未調査.
+    \end{itemize}
+\end{itemize}
+
+
+% --- 参考文献 ---
 \printbibliography
-\end{frame}
+
 \end{document}
