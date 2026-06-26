@@ -1,0 +1,310 @@
+\documentclass[dvipdfmx, twocolumn, 10pt]{bxjsarticle}
+
+\usepackage{geometry}
+\geometry{margin=20truemm}
+\usepackage{bm}
+\usepackage{tabularx}
+\usepackage{listings}
+\lstset{
+  basicstyle=\footnotesize\ttfamily,
+  breaklines=true,
+  breakatwhitespace=false,
+  columns=fullflexible,
+  keepspaces=true,
+}
+
+\title{\textbf{\LaTeX\ レポート作成ガイド}}
+\author{}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\texttt{main.tex} のテンプレートをベースに, 研究報告書・論文の書き方をまとめたガイドです.
+
+% ===========================
+\section{ドキュメントクラスとレイアウト}
+
+\begin{lstlisting}
+\documentclass[dvipdfmx, twocolumn, 10pt]{bxjsarticle}
+\end{lstlisting}
+
+\begin{tabularx}{\linewidth}{lX}
+\hline
+オプション & 意味 \\
+\hline
+\texttt{dvipdfmx}    & PDF 変換ドライバ（日本語環境では必須） \\
+\texttt{twocolumn}   & 2段組レイアウト \\
+\texttt{10pt}        & 本文フォントサイズ \\
+\texttt{bxjsarticle} & 日本語対応の article クラス \\
+\hline
+\end{tabularx}
+
+\medskip
+余白の調整は \texttt{geometry} パッケージで行う:
+
+\begin{lstlisting}
+\usepackage{geometry}
+\geometry{margin=20truemm}
+% または細かく指定
+% \geometry{top=15mm, bottom=25mm, left=20mm, right=20mm}
+\end{lstlisting}
+
+% ===========================
+\section{よく使うパッケージ}
+
+\begin{lstlisting}
+\usepackage{bm}    % 数式中の太字ベクトル: \bm{x}
+\usepackage{tikz}  % 図の描画
+\usetikzlibrary{arrows.meta, positioning, decorations.pathreplacing, calc}
+\end{lstlisting}
+
+% ===========================
+\section{文書情報}
+
+\begin{lstlisting}
+\title{\textbf{タイトル}}
+\author{氏名}
+\date{\today}   % 今日の日付を自動挿入
+
+\begin{document}
+\maketitle      % タイトルブロックを出力
+\end{lstlisting}
+
+% ===========================
+\section{要旨 (Abstract)}
+
+\begin{lstlisting}
+\begin{abstract}
+研究の背景・目的・手法・結果を200〜400字程度でまとめる。
+\end{abstract}
+\end{lstlisting}
+
+\textbf{書き方のポイント}
+\begin{itemize}
+  \item 背景 $\to$ 問題提起 $\to$ 手法 $\to$ 成果の順で書く
+  \item 数式・図表への参照は入れない
+  \item 専門用語を初出時に略称と併記する（例: 連合学習 (Federated Learning, FL)）
+\end{itemize}
+
+% ===========================
+\section{セクション構成}
+
+\begin{lstlisting}
+\section{緒言}
+\subsection{背景}
+\subsubsection{詳細（必要なら）}
+\end{lstlisting}
+
+\textbf{典型的な構成}
+\begin{enumerate}
+  \item 緒言（背景・研究の位置づけ）
+  \item 研究課題（問いの明確化）
+  \item 実験計画 / 手法
+  \item 評価方法
+  \item 結果・考察（実験後）
+  \item 結言
+\end{enumerate}
+
+% ===========================
+\section{文献引用 (BibLaTeX)}
+
+\subsection{設定}
+
+\begin{lstlisting}
+\usepackage[
+  backend=biber,   % 処理エンジン（pbiber ではなく biber を使う）
+  style=numeric,   % [1] 形式の番号引用
+  sorting=none,    % 登場順に番号を振る
+  date=year,       % 年のみ表示
+  isbn=false,
+  doi=true,
+  giveninits,      % 名前をイニシャル表記
+]{biblatex}
+\addbibresource{references.bib}  % .bib ファイルを指定
+\end{lstlisting}
+
+\subsection{引用の書き方}
+
+\begin{lstlisting}
+この研究\cite{著者年キーワード}では〜が示されている.
+
+% 複数引用
+先行研究\cite{foo2020,bar2021}によると〜.
+\end{lstlisting}
+
+\subsection{文献リストの出力}
+
+\begin{lstlisting}
+\printbibliography   % 本文末尾に配置
+\end{lstlisting}
+
+\subsection{.bib ファイルの記述例}
+
+\begin{lstlisting}
+@inproceedings{mcmahan2017communication,
+  author    = {McMahan, Brendan and others},
+  title     = {Communication-Efficient Learning of Deep Networks},
+  booktitle = {Proceedings of AISTATS},
+  year      = {2017},
+}
+
+@article{li2020federated,
+  author  = {Li, Tian and others},
+  title   = {Federated Optimization in Heterogeneous Networks},
+  journal = {Proceedings of MLSys},
+  year    = {2020},
+}
+\end{lstlisting}
+
+\subsection{コンパイル手順（BibLaTeX + biber）}
+
+\begin{lstlisting}
+platex main.tex
+biber main
+platex main.tex
+platex main.tex
+\end{lstlisting}
+
+または \texttt{latexmk} を使う（推奨）:
+
+\begin{lstlisting}
+latexmk -pdfdvi main.tex
+\end{lstlisting}
+
+% ===========================
+\section{図の挿入}
+
+\subsection{1段幅の図}
+
+\begin{lstlisting}
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.9\linewidth]{figures/image.png}
+  \caption{図のキャプション}
+  \label{fig:label}
+\end{figure}
+\end{lstlisting}
+
+\subsection{2段組をまたぐ幅広の図}
+
+\begin{lstlisting}
+\begin{figure*}[t]   % * で全幅、[t] でページ上部に配置
+  \centering
+  % ...
+  \caption{キャプション}
+  \label{fig:wide}
+\end{figure*}
+\end{lstlisting}
+
+\subsection{図の参照}
+
+\begin{lstlisting}
+図\ref{fig:label}に示すように〜.
+\end{lstlisting}
+
+\subsection{TikZ で図を描く（画像不要）}
+
+\begin{lstlisting}
+\begin{tikzpicture}
+  \draw[-{Stealth}] (0,0) -- (5,0) node[right] {時間};
+  \draw[rectangle, draw, fill=cyan!30] (1,0) rectangle (3,0.5)
+    node[pos=.5] {イベント};
+\end{tikzpicture}
+\end{lstlisting}
+
+% ===========================
+\section{箇条書き}
+
+\subsection{番号なし}
+
+\begin{lstlisting}
+\begin{itemize}
+  \item 項目1
+  \item 項目2
+  \begin{itemize}         % ネストも可能
+    \item サブ項目
+  \end{itemize}
+\end{itemize}
+\end{lstlisting}
+
+\subsection{番号あり}
+
+\begin{lstlisting}
+\begin{enumerate}
+  \item 研究課題1
+  \item 研究課題2
+\end{enumerate}
+\end{lstlisting}
+
+% ===========================
+\section{強調・テキスト修飾}
+
+\begin{lstlisting}
+\textbf{太字}          % 強調（用語の初出など）
+\textit{イタリック}    % 英語の書名・変数名など
+\underline{下線}
+\end{lstlisting}
+
+% ===========================
+\section{数式}
+
+\subsection{インライン数式}
+
+\begin{lstlisting}
+損失関数 $L(\theta)$ を最小化する.
+\end{lstlisting}
+
+\subsection{別行立て数式}
+
+\begin{lstlisting}
+\begin{equation}
+  \hat{y} = \sigma\left(\sum_{i} w_i x_i + b\right)
+  \label{eq:sigmoid}
+\end{equation}
+
+式\eqref{eq:sigmoid}より〜.
+\end{lstlisting}
+
+\subsection{太字ベクトル（bm パッケージ）}
+
+\begin{lstlisting}
+$\bm{x} \in \mathbb{R}^d$
+\end{lstlisting}
+
+% ===========================
+\newpage
+\section{ディレクトリ構成の例}
+
+\begin{lstlisting}
+report/
+├── main.tex          # メインファイル
+├── references.bib    # 参考文献データベース
+├── figures/          # 画像ファイル
+│   └── diagram.png
+└── sections/         # セクションを分割する場合
+    ├── intro.tex
+    └── experiment.tex
+\end{lstlisting}
+
+分割したファイルの読み込み:
+
+\begin{lstlisting}
+\input{sections/intro}
+\end{lstlisting}
+
+
+% ===========================
+\section{提出前チェックリスト}
+
+\begin{itemize}
+  \item 全ての \texttt{\textbackslash ref} が正しく解決されている（\texttt{??} になっていない）
+  \item 全ての \texttt{\textbackslash cite} が文献リストに存在する
+  \item 図・表にキャプションと \texttt{\textbackslash label} がある
+  \item 要旨が研究の全体像を正確に伝えている
+  \item 略称は初出時に正式名称とともに定義されている
+  \item PDF に日本語フォントが埋め込まれている
+  \item ページ数・フォーマットが指定要件を満たしている
+\end{itemize}
+
+\end{document}
