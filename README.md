@@ -6,18 +6,9 @@
 
 
 # 使い方
-## ツールの用意
-### git
-- gitの確認: `git --version`
-
-### gh
-- ghのインストール: `brew install gh`
-- 認証: `gh auth login`
+git, ghはドキュメントを参照するか, AIに聞くと良いです.
 
 ## レポジトリ作成
 このレポジトリはテンプレートです. `gh repo create`で流用できます.
-`gh repo create my_graduation_thesis --template="custard-1855/template_graduation_thesis" --private --clone`
+`gh repo create my_graduation_thesis --template="custard-1855/report_template_tex" --private --clone`
 
-
-## 他
-gitやlatexについてはAIに聞くことをお勧めします.
