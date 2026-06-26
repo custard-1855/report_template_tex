@@ -2,7 +2,7 @@
 - https://github.com/being24/latex-template-ja を参考にしています.
   - devcontainerで環境を閉じています.
 - 研究室向けです. 研究計画書など, レポートを書く際に使用することを想定しています.
-- custard的にはQuartoがおすすめです.
+  - custard的にはQuartoがおすすめです.
 
 
 # 使い方
