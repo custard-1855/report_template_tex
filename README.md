@@ -12,7 +12,7 @@ git, ghはドキュメントを参照するか, AIに聞くと良いです.
 
 ## レポジトリ作成
 このレポジトリはテンプレートです. `gh repo create`で流用できます.
-`gh repo create my_graduation_thesis --template="custard-1855/report_template_tex" --private --clone`
+`gh repo create my_report --template="custard-1855/report_template_tex" --private --clone`
 
 ## 開く
 `code`でVScodeを起動し, devcontainerを起動します.
