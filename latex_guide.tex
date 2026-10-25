@@ -272,27 +272,6 @@ latexmk -pdfdvi main.tex
 $\bm{x} \in \mathbb{R}^d$
 \end{lstlisting}
 
-% ===========================
-\newpage
-\section{ディレクトリ構成の例}
-
-\begin{lstlisting}
-report/
-├── main.tex          # メインファイル
-├── references.bib    # 参考文献データベース
-├── figures/          # 画像ファイル
-│   └── diagram.png
-└── sections/         # セクションを分割する場合
-    ├── intro.tex
-    └── experiment.tex
-\end{lstlisting}
-
-分割したファイルの読み込み:
-
-\begin{lstlisting}
-\input{sections/intro}
-\end{lstlisting}
-
 
 % ===========================
 \section{提出前チェックリスト}
